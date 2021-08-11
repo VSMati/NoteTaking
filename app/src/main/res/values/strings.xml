@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">NoteTaking</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="list_fragment_label">List Fragment</string>
+    <string name="note_fragment_label">Note Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="Title">Title</string>
+    <string name="Text">Your beautiful thoughts...</string>
+
+    <string name="screen_reader_add_note">Add new note</string>
+    <string name="screen_reader_add_title">Add title to note</string>
+    <string name="screen_reader_add_text">Add text to your note</string>
+</resources>
