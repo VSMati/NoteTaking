@@ -3,13 +3,10 @@ package com.example.notetaking.controllers;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.ContextMenu;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,7 +18,6 @@ import com.example.notetaking.R;
 import com.example.notetaking.database.Note;
 import com.example.notetaking.database.NoteDatabase;
 import com.example.notetaking.recyclerview.ListAdapter;
-import com.example.notetaking.recyclerview.ListClickListener;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -53,9 +49,14 @@ public class ListFragment extends Fragment {
         registerForContextMenu(recyclerView);
         return v;
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        listAdapter.notifyDataSetChanged();
+    }
+
     //TODO: after returning back to fragment it creates 2 notes
-    /*TODO: after returning to fragment it doesn't show notes,
-       but after pausing activity, they show up*/
 
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
@@ -70,7 +71,7 @@ public class ListFragment extends Fragment {
     }
 
     private void deleteAndUpdate(int position){
-        Note note = null;
+        Note note;
         try {
             note = new InsertAnotherTask(ListFragment.this).execute().get().get(position);
             new InsertTask(ListFragment.this,note).execute().get();
@@ -83,7 +84,7 @@ public class ListFragment extends Fragment {
     private static class InsertTask extends AsyncTask<Void,Void,Boolean> {
 
         private WeakReference<ListFragment> activityReference;
-        private Note note;
+        private final Note note;
 
         InsertTask(ListFragment context, Note note) {
             activityReference = new WeakReference<>(context);
@@ -98,7 +99,7 @@ public class ListFragment extends Fragment {
     }
 
     private static class InsertAnotherTask extends AsyncTask<Void,Void, List<Note>>{
-        private WeakReference<ListFragment> activityReference;
+        private final WeakReference<ListFragment> activityReference;
 
         public InsertAnotherTask(ListFragment context) {
             this.activityReference = new WeakReference<>(context);

@@ -5,7 +5,6 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import java.util.UUID;
 
 @Entity
 public class Note {
@@ -19,17 +18,18 @@ public class Note {
     @ColumnInfo(name = "title")
     private String title;
 
-    public Note(String id, String content, String title) {
-        mId = id;
+    public Note(@NonNull String id, String content, String title) {
+        this.mId=id;
         this.content = content;
         this.title = title;
     }
 
+    @NonNull
     public String getId() {
         return mId;
     }
 
-    public void setId(String id) {
+    public void setId(@NonNull String id) {
         mId = id;
     }
 

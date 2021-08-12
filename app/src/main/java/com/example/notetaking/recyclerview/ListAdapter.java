@@ -5,7 +5,6 @@ import android.os.AsyncTask;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -14,7 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.notetaking.R;
-import com.example.notetaking.controllers.NoteActivity;
 import com.example.notetaking.database.Note;
 import com.example.notetaking.database.NoteDatabase;
 
@@ -54,12 +52,10 @@ public class ListAdapter extends RecyclerView.Adapter {
         try {
             Note note = new RetrieveTask(this).execute().get().get(position);
             ((ListHolder)holder).getTitle().setText(note.getTitle());
-            holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View v) {
-                    setPosition(holder.getAdapterPosition());
-                    return false;
-                }
+            ((ListHolder)holder).getText().setText(note.getContent());
+            holder.itemView.setOnLongClickListener(v -> {
+                setPosition(holder.getAdapterPosition());
+                return false;
             });
         } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
@@ -78,15 +74,21 @@ public class ListAdapter extends RecyclerView.Adapter {
 
     public class ListHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
         private TextView mTitle;
+        private TextView mText;
         public ListHolder(@NonNull View itemView) {
             super(itemView);
-            mTitle = itemView.findViewById(R.id.item_cell);
+            mTitle = itemView.findViewById(R.id.item_cell_title);
+            mText = itemView.findViewById(R.id.item_cell_text);
             itemView.setOnClickListener(v -> mListener.onClickItem(getAdapterPosition()));
             itemView.setOnCreateContextMenuListener(this);
         }
 
         public TextView getTitle() {
             return mTitle;
+        }
+
+        public TextView getText() {
+            return mText;
         }
 
         @Override

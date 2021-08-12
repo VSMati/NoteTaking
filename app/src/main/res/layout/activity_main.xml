@@ -15,7 +15,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
+            android:background="@color/app_bar"
             app:popupTheme="@style/Theme.NoteTaking.PopupOverlay" />
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -30,16 +30,15 @@
         android:layout_marginBottom="16dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        style="@style/Widget.MaterialComponents.FloatingActionButton"
         android:id="@+id/fab"
+        style="@style/Widget.MaterialComponents.FloatingActionButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         android:contentDescription="@string/screen_reader_add_note"
-        app:backgroundTint="@color/purple_700"
-        app:srcCompat="@drawable/ic_add_note"
         android:tint="@android:color/white"
-        />
+        app:backgroundTint="@color/fab"
+        app:srcCompat="@drawable/ic_add_note" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

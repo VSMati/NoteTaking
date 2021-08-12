@@ -4,7 +4,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -95,9 +94,7 @@ public class NoteActivity extends AppCompatActivity {
 
     public void setAllValues(){
         isNewNote = getIntent().getBooleanExtra(MainActivity.EXTRA_NOTE_SHOWN,false);
-        if (isNewNote){
-            return;
-        }else{
+        if (!isNewNote){
             int position = getIntent().getIntExtra(ListFragment.EXTRA_POSITION,0);
             try {
                 Note note = new InsertAnotherTask(NoteActivity.this).execute().get().get(position);
@@ -111,8 +108,8 @@ public class NoteActivity extends AppCompatActivity {
 
     private static class InsertTask extends AsyncTask<Void,Void,Boolean> {
 
-        private WeakReference<NoteActivity> activityReference;
-        private Note note;
+        private final WeakReference<NoteActivity> activityReference;
+        private final Note note;
 
         InsertTask(NoteActivity context, Note note) {
             activityReference = new WeakReference<>(context);
@@ -121,13 +118,13 @@ public class NoteActivity extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground(Void... objs) {
-            activityReference.get().mDatabase.getNoteDao().insert(note);
+            activityReference.get().mDatabase.getNoteDao().upsert(note);
             return true;
         }
     }
 
     private static class InsertAnotherTask extends AsyncTask<Void,Void,List<Note>>{
-        private WeakReference<NoteActivity> activityReference;
+        private final WeakReference<NoteActivity> activityReference;
 
         public InsertAnotherTask(NoteActivity context) {
             this.activityReference = new WeakReference<>(context);
@@ -138,7 +135,7 @@ public class NoteActivity extends AppCompatActivity {
             return activityReference.get().mDatabase.getNoteDao().getAll();
         }
     }
-//TODO: root is somewhere here
+//TODO: you need to share uuid between fragments
     private void saveNote(){
         if (etText.getText()!=null || etTitle.getText()!=null){
             Note note = new Note(UUID.randomUUID().toString(),etText.getText().toString(),
