@@ -1,13 +1,17 @@
 package com.example.notetaking.database;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.util.UUID;
+
 @Entity
 public class Note {
-    @PrimaryKey(autoGenerate = true)
-    private int mId;
+    @PrimaryKey
+    @NonNull
+    private String mId;
 
     @ColumnInfo(name = "content")
     private String content;
@@ -15,17 +19,17 @@ public class Note {
     @ColumnInfo(name = "title")
     private String title;
 
-    public Note(int id, String content, String title) {
+    public Note(String id, String content, String title) {
         mId = id;
         this.content = content;
         this.title = title;
     }
 
-    public int getId() {
+    public String getId() {
         return mId;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         mId = id;
     }
 

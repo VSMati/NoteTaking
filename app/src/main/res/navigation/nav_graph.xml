@@ -11,11 +11,11 @@
         android:label="activity_main"
         tools:layout="@layout/activity_main" >
         <action
-            android:id="@+id/action_mainActivity_to_noteFragment"
-            app:destination="@id/noteFragment" />
+            android:id="@+id/action_mainActivity_to_noteActivity"
+            app:destination="@id/noteActivity" />
     </activity>
-    <fragment
-        android:id="@+id/noteFragment"
-        android:name="com.example.notetaking.controllers.NoteFragment"
-        android:label="NoteFragment" />
+    <activity
+        android:id="@+id/noteActivity"
+        android:name="com.example.notetaking.controllers.NoteActivity"
+        android:label="NoteActivity" />
 </navigation>

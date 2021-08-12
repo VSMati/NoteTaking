@@ -1,5 +1,6 @@
 package com.example.notetaking.controllers;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.example.notetaking.R;
@@ -9,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.View;
 
+import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -23,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
 
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
+    private boolean isNewNote;
+    protected static final String EXTRA_NOTE_SHOWN = "isNoteShown";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,13 +37,16 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(binding.toolbar);
 
+        FragmentManager fm = getSupportFragmentManager();
+        ListFragment lf = new ListFragment();
+        fm.beginTransaction().add(R.id.list_container,lf).commit();
+
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO:set this to add a new note
-                NavController navController = Navigation.findNavController(MainActivity.this,R.id.nav_host_fragment_content_main);
-                navController.navigate(R.id.action_mainActivity_to_noteFragment);
-                //TODO:add bundle with boolean isNewNote
+                Intent intent = new Intent(MainActivity.this,NoteActivity.class);
+                intent.putExtra(EXTRA_NOTE_SHOWN,isNewNote=true);
+                startActivity(intent);
             }
         });
     }

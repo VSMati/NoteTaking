@@ -20,8 +20,8 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <include
-        layout="@layout/fragment_list"
+    <FrameLayout
+        android:id="@+id/list_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginStart="16dp"
@@ -30,12 +30,16 @@
         android:layout_marginBottom="16dp" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        style="@style/Widget.MaterialComponents.FloatingActionButton"
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         android:contentDescription="@string/screen_reader_add_note"
-        app:srcCompat="@android:drawable/ic_input_add" />
+        app:backgroundTint="@color/purple_700"
+        app:srcCompat="@drawable/ic_add_note"
+        android:tint="@android:color/white"
+        />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
