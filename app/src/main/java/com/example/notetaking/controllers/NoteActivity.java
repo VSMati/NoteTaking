@@ -1,5 +1,7 @@
 package com.example.notetaking.controllers;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
@@ -14,22 +16,24 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.notetaking.R;
 import com.example.notetaking.database.Note;
 import com.example.notetaking.database.NoteDatabase;
+import com.example.notetaking.recyclerview.ListAdapter;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 public class NoteActivity extends AppCompatActivity {
     private EditText etTitle, etText;
     private Button btnSave;
     private boolean isNewNote;
+    private String mId;
     NoteDatabase mDatabase;
     private final String[] title = new String[1];
     private final String[] text = new String[1];
 
     private static final String KEY_TITLE = "title";
     private static final String KEY_TEXT = "text";
+    private static final String EXTRA_UUID_STRING = "uuid_string";
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -97,7 +101,7 @@ public class NoteActivity extends AppCompatActivity {
         if (!isNewNote){
             int position = getIntent().getIntExtra(ListFragment.EXTRA_POSITION,0);
             try {
-                Note note = new InsertAnotherTask(NoteActivity.this).execute().get().get(position);
+                Note note = new RetrieveTask(NoteActivity.this).execute().get().get(position);
                 etTitle.setText(note.getTitle());
                 etText.setText(note.getContent());
             } catch (ExecutionException | InterruptedException e) {
@@ -118,15 +122,32 @@ public class NoteActivity extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground(Void... objs) {
-            activityReference.get().mDatabase.getNoteDao().upsert(note);
+            activityReference.get().mDatabase.getNoteDao().insert(note);
             return true;
         }
     }
 
-    private static class InsertAnotherTask extends AsyncTask<Void,Void,List<Note>>{
+    private static class UpdateTask extends AsyncTask<Void,Void,Boolean> {
+
+        private final WeakReference<NoteActivity> activityReference;
+        private final Note note;
+
+        UpdateTask(NoteActivity context, Note note) {
+            activityReference = new WeakReference<>(context);
+            this.note = note;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... objs) {
+            activityReference.get().mDatabase.getNoteDao().update(note);
+            return true;
+        }
+    }
+
+    private static class RetrieveTask extends AsyncTask<Void,Void,List<Note>>{
         private final WeakReference<NoteActivity> activityReference;
 
-        public InsertAnotherTask(NoteActivity context) {
+        public RetrieveTask(NoteActivity context) {
             this.activityReference = new WeakReference<>(context);
         }
 
@@ -138,11 +159,26 @@ public class NoteActivity extends AppCompatActivity {
 //TODO: you need to share uuid between fragments
     private void saveNote(){
         if (etText.getText()!=null || etTitle.getText()!=null){
-            Note note = new Note(UUID.randomUUID().toString(),etText.getText().toString(),
-                    etTitle.getText().toString());
-            new InsertTask(NoteActivity.this,note).execute();
-            finish();
+            String content = etText.getText().toString();
+            String title = etTitle.getText().toString();
+            if (!isNewNote){
+                String id = getIntent().getStringExtra(EXTRA_UUID_STRING);
+                Note note = Note.getNote(id,content,title);
+                new UpdateTask(NoteActivity.this,note).execute();
+            }else {
+                Note note = new Note(content,title);
+                new InsertTask(NoteActivity.this,note).execute();
+            }
         }
+        ListFragment.recyclerView.getAdapter().notifyDataSetChanged();
+        finish();
+
+    }
+
+    public static Intent newIntent(Context startingAct,String uuid){
+        Intent intent = new Intent(startingAct,NoteActivity.class);
+        intent.putExtra(EXTRA_UUID_STRING,uuid);
+        return intent;
     }
 }
 

@@ -72,15 +72,16 @@ public class ListAdapter extends RecyclerView.Adapter {
         return 0;
     }
 
-    public class ListHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
+    public class ListHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener
+            ,View.OnClickListener {
         private TextView mTitle;
         private TextView mText;
+
         public ListHolder(@NonNull View itemView) {
             super(itemView);
             mTitle = itemView.findViewById(R.id.item_cell_title);
             mText = itemView.findViewById(R.id.item_cell_text);
-            itemView.setOnClickListener(v -> mListener.onClickItem(getAdapterPosition()));
-            itemView.setOnCreateContextMenuListener(this);
+            itemView.setOnClickListener(this);
         }
 
         public TextView getTitle() {
@@ -94,6 +95,20 @@ public class ListAdapter extends RecyclerView.Adapter {
         @Override
         public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
             menu.add(Menu.NONE,R.id.delete, Menu.NONE,R.string.menu_delete);
+        }
+
+        @Override
+        public void onClick(View v) {
+            int position = getAdapterPosition();
+            try {
+                Note retrievedNote = new RetrieveTask(ListAdapter.this).execute()
+                        .get().get(position);
+                String uuid = retrievedNote.getId();
+                mListener.onClickItem(position,uuid);
+                itemView.setOnCreateContextMenuListener(this);
+            } catch (ExecutionException | InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 

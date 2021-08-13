@@ -1,5 +1,5 @@
 package com.example.notetaking.recyclerview;
 
 public interface ListClickListener {
-    void onClickItem(int position);
+    void onClickItem(int position, String uuid);
 }

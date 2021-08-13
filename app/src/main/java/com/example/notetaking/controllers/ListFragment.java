@@ -18,6 +18,7 @@ import com.example.notetaking.R;
 import com.example.notetaking.database.Note;
 import com.example.notetaking.database.NoteDatabase;
 import com.example.notetaking.recyclerview.ListAdapter;
+import com.example.notetaking.recyclerview.ListClickListener;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -26,7 +27,7 @@ import java.util.concurrent.ExecutionException;
 public class ListFragment extends Fragment {
     protected static final String EXTRA_POSITION = "positionNote";
     private NoteDatabase mDatabase;
-    private RecyclerView recyclerView;
+    protected static RecyclerView recyclerView;
     private ListAdapter listAdapter;
 
     @Nullable
@@ -37,8 +38,8 @@ public class ListFragment extends Fragment {
                 .getApplicationContext());
 
         recyclerView = v.findViewById(R.id.recycler_view);
-        listAdapter = new ListAdapter(getContext(), position -> {
-            Intent intent = new Intent(getActivity(),NoteActivity.class);
+        listAdapter = new ListAdapter(getContext(), (position, uuid) -> {
+            Intent intent = NoteActivity.newIntent(getContext(),uuid);
             intent.putExtra(EXTRA_POSITION,position);
             intent.putExtra(MainActivity.EXTRA_NOTE_SHOWN,false);
             startActivity(intent);
@@ -62,8 +63,6 @@ public class ListFragment extends Fragment {
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.delete){
-            /*AdapterView.AdapterContextMenuInfo menuInfo = (AdapterView.AdapterContextMenuInfo)item
-                    .getMenuInfo();*/
             int position = listAdapter.getPosition();
             deleteAndUpdate(position);
         }
