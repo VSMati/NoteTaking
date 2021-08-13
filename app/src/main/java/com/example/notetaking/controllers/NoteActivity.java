@@ -87,7 +87,6 @@ public class NoteActivity extends AppCompatActivity {
 
         btnSave.setOnClickListener(v -> saveNote());
     }
-    //TODO: fix bug - when you click on note it doesn't change, but create a new one
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
@@ -156,7 +155,6 @@ public class NoteActivity extends AppCompatActivity {
             return activityReference.get().mDatabase.getNoteDao().getAll();
         }
     }
-//TODO: you need to share uuid between fragments
     private void saveNote(){
         if (etText.getText()!=null || etTitle.getText()!=null){
             String content = etText.getText().toString();
