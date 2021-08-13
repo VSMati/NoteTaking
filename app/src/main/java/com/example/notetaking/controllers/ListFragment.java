@@ -18,7 +18,6 @@ import com.example.notetaking.R;
 import com.example.notetaking.database.Note;
 import com.example.notetaking.database.NoteDatabase;
 import com.example.notetaking.recyclerview.ListAdapter;
-import com.example.notetaking.recyclerview.ListClickListener;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -37,6 +36,9 @@ public class ListFragment extends Fragment {
         mDatabase = NoteDatabase.getInstance(requireActivity()
                 .getApplicationContext());
 
+        boolean isLand = requireContext().getResources().getBoolean(R.bool.landscape);
+        boolean isTablet = requireContext().getResources().getBoolean(R.bool.isTablet);
+
         recyclerView = v.findViewById(R.id.recycler_view);
         listAdapter = new ListAdapter(getContext(), (position, uuid) -> {
             Intent intent = NoteActivity.newIntent(getContext(),uuid);
@@ -44,7 +46,13 @@ public class ListFragment extends Fragment {
             intent.putExtra(MainActivity.EXTRA_NOTE_SHOWN,false);
             startActivity(intent);
         });
-        recyclerView.setLayoutManager(new GridLayoutManager(getContext(),2));
+
+        if (isLand || isTablet){
+            recyclerView.setLayoutManager(new GridLayoutManager(getContext(),4));
+        }else{
+            recyclerView.setLayoutManager(new GridLayoutManager(getContext(),2));
+        }
+
         recyclerView.setAdapter(listAdapter);
         recyclerView.setHasFixedSize(true);
         registerForContextMenu(recyclerView);
@@ -56,8 +64,6 @@ public class ListFragment extends Fragment {
         super.onResume();
         listAdapter.notifyDataSetChanged();
     }
-
-    //TODO: after returning back to fragment it creates 2 notes
 
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
@@ -82,7 +88,7 @@ public class ListFragment extends Fragment {
 
     private static class InsertTask extends AsyncTask<Void,Void,Boolean> {
 
-        private WeakReference<ListFragment> activityReference;
+        private final WeakReference<ListFragment> activityReference;
         private final Note note;
 
         InsertTask(ListFragment context, Note note) {

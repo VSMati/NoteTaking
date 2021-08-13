@@ -2,6 +2,7 @@ package com.example.notetaking.recyclerview;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -10,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.notetaking.R;
@@ -47,12 +49,14 @@ public class ListAdapter extends RecyclerView.Adapter {
         return new ListHolder(v);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         try {
             Note note = new RetrieveTask(this).execute().get().get(position);
             ((ListHolder)holder).getTitle().setText(note.getTitle());
             ((ListHolder)holder).getText().setText(note.getContent());
+            holder.itemView.setClipToOutline(true);
             holder.itemView.setOnLongClickListener(v -> {
                 setPosition(holder.getAdapterPosition());
                 return false;
