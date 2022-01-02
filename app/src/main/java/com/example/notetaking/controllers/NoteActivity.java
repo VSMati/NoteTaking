@@ -16,7 +16,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.notetaking.R;
 import com.example.notetaking.database.Note;
 import com.example.notetaking.database.NoteDatabase;
-import com.example.notetaking.recyclerview.ListAdapter;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -26,7 +25,6 @@ public class NoteActivity extends AppCompatActivity {
     private EditText etTitle, etText;
     private Button btnSave;
     private boolean isNewNote;
-    private String mId;
     NoteDatabase mDatabase;
     private final String[] title = new String[1];
     private final String[] text = new String[1];
@@ -168,6 +166,7 @@ public class NoteActivity extends AppCompatActivity {
                 new InsertTask(NoteActivity.this,note).execute();
             }
         }
+        assert ListFragment.recyclerView.getAdapter() != null;
         ListFragment.recyclerView.getAdapter().notifyDataSetChanged();
         finish();
 
