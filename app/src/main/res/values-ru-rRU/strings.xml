@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Заметки</string>
+    <string name="action_settings">Настройки</string>
+    <string name="list_fragment_label">Список</string>
+    <string name="note_fragment_label">Заметки</string>
+    <string name="next">Следующий</string>
+    <string name="previous">Предыдущий</string>
+    <string name="Title">Название</string>
+    <string name="Text">Мыслительный процесс</string>
+    <string name="save_button">Сохранить</string>
+    <string name="screen_reader_add_note">Добавить новую заметку</string>
+    <string name="screen_reader_add_title">Добавить заголовок заметке</string>
+    <string name="screen_reader_add_text">Добавить текст заметки</string>
+    <string name="menu_delete">Удалить</string>
+</resources>

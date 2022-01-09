@@ -6,6 +6,7 @@ import android.os.Build;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -22,9 +23,10 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class ListAdapter extends RecyclerView.Adapter {
-    private LayoutInflater mLayoutInflater;
-    private NoteDatabase mDatabase;
+
+public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListHolder> {
+    private final LayoutInflater mLayoutInflater;
+    private final NoteDatabase mDatabase;
     private final ListClickListener mListener;
     private int position;
 
@@ -44,14 +46,14 @@ public class ListAdapter extends RecyclerView.Adapter {
 
     @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ListHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = mLayoutInflater.inflate(R.layout.list_cell,parent,false);
         return new ListHolder(v);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ListHolder holder, int position) {
         try {
             Note note = new RetrieveTask(this).execute().get().get(position);
             ((ListHolder)holder).getTitle().setText(note.getTitle());
@@ -78,14 +80,15 @@ public class ListAdapter extends RecyclerView.Adapter {
 
     public class ListHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener
             ,View.OnClickListener {
-        private TextView mTitle;
-        private TextView mText;
+        private final TextView mTitle;
+        private final TextView mText;
 
         public ListHolder(@NonNull View itemView) {
             super(itemView);
             mTitle = itemView.findViewById(R.id.item_cell_title);
             mText = itemView.findViewById(R.id.item_cell_text);
             itemView.setOnClickListener(this);
+            itemView.setOnCreateContextMenuListener(this);
         }
 
         public TextView getTitle() {
@@ -98,8 +101,17 @@ public class ListAdapter extends RecyclerView.Adapter {
 
         @Override
         public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
-            menu.add(Menu.NONE,R.id.delete, Menu.NONE,R.string.menu_delete);
+            MenuItem delete = menu.add(Menu.NONE,R.id.delete, Menu.NONE,R.string.menu_delete);
+            delete.setOnMenuItemClickListener(mOnMenuItemClickListener);
         }
+
+        private final MenuItem.OnMenuItemClickListener mOnMenuItemClickListener = item -> {
+            if (item.getItemId() == R.id.delete) {
+                int position = ListAdapter.this.getPosition();
+                deleteAndUpdate(position);
+            }
+            return true;
+        };
 
         @Override
         public void onClick(View v) {
@@ -118,7 +130,7 @@ public class ListAdapter extends RecyclerView.Adapter {
 
     private static class RetrieveTask extends AsyncTask<Void,Void,List<Note>> {
 
-        private WeakReference<ListAdapter> activityReference;
+        private final WeakReference<ListAdapter> activityReference;
 
         RetrieveTask(ListAdapter context) {
             activityReference = new WeakReference<>(context);
@@ -130,6 +142,47 @@ public class ListAdapter extends RecyclerView.Adapter {
                 return activityReference.get().mDatabase.getNoteDao().getAll();
             else
                 return null;
+        }
+    }
+
+    private void deleteAndUpdate(int position){
+        Note note;
+        try {
+            note = new InsertAnotherTask(this).execute().get().get(position);
+            new InsertTask(this,note).execute().get();
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        notifyDataSetChanged();
+    }
+
+    private static class InsertTask extends AsyncTask<Void,Void,Boolean> {
+
+        private final WeakReference<ListAdapter> activityReference;
+        private final Note note;
+
+        InsertTask(ListAdapter context, Note note) {
+            activityReference = new WeakReference<>(context);
+            this.note = note;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... objs) {
+            activityReference.get().mDatabase.getNoteDao().delete(note);
+            return true;
+        }
+    }
+
+    private static class InsertAnotherTask extends AsyncTask<Void,Void, List<Note>>{
+        private final WeakReference<ListAdapter> activityReference;
+
+        public InsertAnotherTask(ListAdapter context) {
+            this.activityReference = new WeakReference<>(context);
+        }
+
+        @Override
+        protected List<Note> doInBackground(Void... voids) {
+            return activityReference.get().mDatabase.getNoteDao().getAll();
         }
     }
 }

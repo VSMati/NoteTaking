@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Нотатки</string>
+    <string name="action_settings">Налаштування</string>
+    <string name="list_fragment_label">Список</string>
+    <string name="note_fragment_label">Нотатки</string>
+    <string name="next">Наступний</string>
+    <string name="previous">Попередній</string>
+    <string name="Title">Заголовок</string>
+    <string name="Text">Нехай тут з\'являться рядки думок</string>
+    <string name="save_button">Зберегти</string>
+    <string name="screen_reader_add_note">Додати нову нотатку</string>
+    <string name="screen_reader_add_title">Додати заголовок нотатці</string>
+    <string name="screen_reader_add_text">Добавити текст нотатки</string>
+    <string name="menu_delete">Видалити</string>
+</resources>
