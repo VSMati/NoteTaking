@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewOutlineProvider;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -51,14 +52,16 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListHolder> {
         return new ListHolder(v);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onBindViewHolder(@NonNull ListHolder holder, int position) {
         try {
             Note note = new RetrieveTask(this).execute().get().get(position);
             ((ListHolder)holder).getTitle().setText(note.getTitle());
             ((ListHolder)holder).getText().setText(note.getContent());
-            holder.itemView.setClipToOutline(true);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                holder.itemView.setOutlineProvider(ViewOutlineProvider.BACKGROUND);
+                holder.itemView.setClipToOutline(true);
+            }
             holder.itemView.setOnLongClickListener(v -> {
                 setPosition(holder.getAdapterPosition());
                 return false;

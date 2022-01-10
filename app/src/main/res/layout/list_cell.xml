@@ -3,7 +3,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    android:theme="@style/ListLayout_purple"
+    android:background="@drawable/note_bg"
     android:fadingEdge="vertical"
     android:orientation="vertical"
     android:paddingLeft="6dp"
