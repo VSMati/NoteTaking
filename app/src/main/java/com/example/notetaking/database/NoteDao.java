@@ -10,23 +10,29 @@ import androidx.room.Update;
 
 import java.util.List;
 
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
+
 @Dao
 public interface NoteDao {
+    /**
+     * @return Observable might emit every time new value is present */
     @Query("SELECT * FROM note")
-    List<Note> getAll();
-
+    Observable<List<Note>> getAll();
+    /**@return Single just returns one response*/
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    long insert(Note note);
-
+    Single<Long> insert(Note note);
+    /**@return Completable indicates completion or error*/
     @Delete
-    void delete(Note note);
+    Completable delete(Note note);
 
     @Update(onConflict = OnConflictStrategy.IGNORE)
-    void update(Note note);
+    Completable update(Note note);
 
     @Transaction
     default void upsert(Note entity) {
-        long id = insert(entity);
+        long id = insert(entity).blockingGet();
         if (id == -1) {
             update(entity);
         }

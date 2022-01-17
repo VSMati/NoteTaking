@@ -2,10 +2,10 @@ package com.example.notetaking.controllers;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -14,18 +14,23 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.notetaking.R;
+import com.example.notetaking.Repository;
 import com.example.notetaking.database.Note;
 import com.example.notetaking.database.NoteDatabase;
 
-import java.lang.ref.WeakReference;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 public class NoteActivity extends AppCompatActivity {
+    private static final String TAG = NoteActivity.class.getSimpleName();
     private EditText etTitle, etText;
     private Button btnSave;
     private boolean isNewNote;
-    NoteDatabase mDatabase;
+    private static Repository sRepository;
     private final String[] title = new String[1];
     private final String[] text = new String[1];
 
@@ -40,7 +45,8 @@ public class NoteActivity extends AppCompatActivity {
         etTitle = findViewById(R.id.etTitle);
         etText = findViewById(R.id.etText);
         btnSave = findViewById(R.id.btnSave);
-        mDatabase = NoteDatabase.getInstance(getApplicationContext());
+        NoteDatabase database = NoteDatabase.getInstance(getApplicationContext());
+        sRepository = Repository.getInstance(database);
 
         setAllValues();
 
@@ -51,9 +57,7 @@ public class NoteActivity extends AppCompatActivity {
 
         etText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -68,9 +72,7 @@ public class NoteActivity extends AppCompatActivity {
 
         etTitle.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) { }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
@@ -97,62 +99,33 @@ public class NoteActivity extends AppCompatActivity {
         isNewNote = getIntent().getBooleanExtra(MainActivity.EXTRA_NOTE_SHOWN,false);
         if (!isNewNote){
             int position = getIntent().getIntExtra(ListFragment.EXTRA_POSITION,0);
-            try {
-                Note note = new RetrieveTask(NoteActivity.this).execute().get().get(position);
-                etTitle.setText(note.getTitle());
-                etText.setText(note.getContent());
-            } catch (ExecutionException | InterruptedException e) {
-                e.printStackTrace();
-            }
+                final Note[] note = new Note[1];
+                sRepository.getRetrieveCall()
+                        .subscribeOn(Schedulers.newThread())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Observer<List<Note>>() {
+                            @Override
+                            public void onSubscribe(@io.reactivex.rxjava3.annotations.NonNull Disposable d) { }
+
+                            @Override
+                            public void onNext(@io.reactivex.rxjava3.annotations.NonNull List<Note> notes) {
+                                note[0] = notes.get(position);
+                            }
+
+                            @Override
+                            public void onError(@io.reactivex.rxjava3.annotations.NonNull Throwable t) {
+                                Log.e(TAG, "onError: ", t.fillInStackTrace());
+                            }
+
+                            @Override
+                            public void onComplete() {
+                                etTitle.setText(note[0].getTitle());
+                                etText.setText(note[0].getContent());
+                            }
+                        });
         }
     }
 
-    private static class InsertTask extends AsyncTask<Void,Void,Boolean> {
-
-        private final WeakReference<NoteActivity> activityReference;
-        private final Note note;
-
-        InsertTask(NoteActivity context, Note note) {
-            activityReference = new WeakReference<>(context);
-            this.note = note;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... objs) {
-            activityReference.get().mDatabase.getNoteDao().insert(note);
-            return true;
-        }
-    }
-
-    private static class UpdateTask extends AsyncTask<Void,Void,Boolean> {
-
-        private final WeakReference<NoteActivity> activityReference;
-        private final Note note;
-
-        UpdateTask(NoteActivity context, Note note) {
-            activityReference = new WeakReference<>(context);
-            this.note = note;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... objs) {
-            activityReference.get().mDatabase.getNoteDao().update(note);
-            return true;
-        }
-    }
-
-    private static class RetrieveTask extends AsyncTask<Void,Void,List<Note>>{
-        private final WeakReference<NoteActivity> activityReference;
-
-        public RetrieveTask(NoteActivity context) {
-            this.activityReference = new WeakReference<>(context);
-        }
-
-        @Override
-        protected List<Note> doInBackground(Void... voids) {
-            return activityReference.get().mDatabase.getNoteDao().getAll();
-        }
-    }
     private void saveNote(){
         if (etText.getText()!=null || etTitle.getText()!=null){
             String content = etText.getText().toString();
@@ -160,10 +133,12 @@ public class NoteActivity extends AppCompatActivity {
             if (!isNewNote){
                 String id = getIntent().getStringExtra(EXTRA_UUID_STRING);
                 Note note = Note.getNote(id,content,title);
-                new UpdateTask(NoteActivity.this,note).execute();
+                sRepository.getUpdateCall(note)
+                .subscribeOn(Schedulers.newThread()).subscribe(); //update old one
             }else {
                 Note note = new Note(content,title);
-                new InsertTask(NoteActivity.this,note).execute();
+                sRepository.getInsertCall(note)
+                .subscribeOn(Schedulers.newThread()).subscribe(); //insert new one
             }
         }
         assert ListFragment.recyclerView.getAdapter() != null;

@@ -1,7 +1,6 @@
 package com.example.notetaking.recyclerview;
 
 import android.content.Context;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -13,23 +12,27 @@ import android.view.ViewOutlineProvider;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.notetaking.R;
+import com.example.notetaking.Repository;
 import com.example.notetaking.database.Note;
 import com.example.notetaking.database.NoteDatabase;
 
-import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
+
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 
 public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListHolder> {
+    //private static final String TAG = ListAdapter.class.getSimpleName();
     private final LayoutInflater mLayoutInflater;
-    private final NoteDatabase mDatabase;
+    private static Repository sRepository;
     private final ListClickListener mListener;
     private int position;
+    private List<Note> mList = new ArrayList<>();
 
     public int getPosition() {
         return position;
@@ -39,9 +42,15 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListHolder> {
         this.position = position;
     }
 
+    public void setList(List<Note> list) {
+        mList = list;
+        notifyDataSetChanged();
+    }
+
     public ListAdapter(Context context, ListClickListener listener) {
         mLayoutInflater = LayoutInflater.from(context);
-        mDatabase = NoteDatabase.getInstance(context);
+        NoteDatabase database = NoteDatabase.getInstance(context);
+        sRepository = Repository.getInstance(database);
         mListener = listener;
     }
 
@@ -54,31 +63,23 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ListHolder holder, int position) {
-        try {
-            Note note = new RetrieveTask(this).execute().get().get(position);
-            ((ListHolder)holder).getTitle().setText(note.getTitle());
-            ((ListHolder)holder).getText().setText(note.getContent());
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                holder.itemView.setOutlineProvider(ViewOutlineProvider.BACKGROUND);
-                holder.itemView.setClipToOutline(true);
-            }
-            holder.itemView.setOnLongClickListener(v -> {
-                setPosition(holder.getAdapterPosition());
-                return false;
-            });
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
+        final Note note = mList.get(position);
+        holder.getTitle().setText(note.getTitle());
+        holder.getText().setText(note.getContent());
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            holder.itemView.setOutlineProvider(ViewOutlineProvider.BACKGROUND);
+            holder.itemView.setClipToOutline(true);
         }
+        holder.itemView.setOnLongClickListener(v -> {
+            setPosition(holder.getAdapterPosition());
+            return false;
+        });
     }
 
     @Override
     public int getItemCount() {
-        try {
-            return new RetrieveTask(this).execute().get().size();
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-        }
-        return 0;
+        return mList.size();
     }
 
     public class ListHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener
@@ -119,74 +120,20 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListHolder> {
         @Override
         public void onClick(View v) {
             int position = getAdapterPosition();
-            try {
-                Note retrievedNote = new RetrieveTask(ListAdapter.this).execute()
-                        .get().get(position);
-                String uuid = retrievedNote.getId();
-                mListener.onClickItem(position,uuid);
-                itemView.setOnCreateContextMenuListener(this);
-            } catch (ExecutionException | InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private static class RetrieveTask extends AsyncTask<Void,Void,List<Note>> {
-
-        private final WeakReference<ListAdapter> activityReference;
-
-        RetrieveTask(ListAdapter context) {
-            activityReference = new WeakReference<>(context);
-        }
-
-        @Override
-        protected List<Note> doInBackground(Void... voids) {
-            if (activityReference.get() != null)
-                return activityReference.get().mDatabase.getNoteDao().getAll();
-            else
-                return null;
+            final Note retrievedNote = mList.get(position);
+            String uuid = retrievedNote.getId();
+            mListener.onClickItem(position,uuid);
+            itemView.setOnCreateContextMenuListener(this);
         }
     }
 
     private void deleteAndUpdate(int position){
-        Note note;
-        try {
-            note = new InsertAnotherTask(this).execute().get().get(position);
-            new InsertTask(this,note).execute().get();
-        } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-        }
+        final Note note = mList.get(position);
+
+        sRepository.getDeleteCall(note).subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe();
         notifyDataSetChanged();
-    }
-
-    private static class InsertTask extends AsyncTask<Void,Void,Boolean> {
-
-        private final WeakReference<ListAdapter> activityReference;
-        private final Note note;
-
-        InsertTask(ListAdapter context, Note note) {
-            activityReference = new WeakReference<>(context);
-            this.note = note;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... objs) {
-            activityReference.get().mDatabase.getNoteDao().delete(note);
-            return true;
-        }
-    }
-
-    private static class InsertAnotherTask extends AsyncTask<Void,Void, List<Note>>{
-        private final WeakReference<ListAdapter> activityReference;
-
-        public InsertAnotherTask(ListAdapter context) {
-            this.activityReference = new WeakReference<>(context);
-        }
-
-        @Override
-        protected List<Note> doInBackground(Void... voids) {
-            return activityReference.get().mDatabase.getNoteDao().getAll();
-        }
     }
 }
 
