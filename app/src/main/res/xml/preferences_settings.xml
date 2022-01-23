@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ListPreference
+        android:icon="@drawable/ic_settings_language"
+        android:key = "language"
+        android:title = "@string/settings_language"
+        android:entries="@array/entry_language"
+        android:entryValues="@array/entry_value_language">
+    </ListPreference>
+
+    <ListPreference
+        android:icon="@drawable/ic_settings_theme"
+        android:key = "theme color"
+        android:title = "@string/settings_theme"
+        android:entries="@array/entry_theme"
+        android:entryValues="@array/entry_value_theme">
+    </ListPreference>
+
+</androidx.preference.PreferenceScreen>

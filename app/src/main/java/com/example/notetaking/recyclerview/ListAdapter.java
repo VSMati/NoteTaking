@@ -14,6 +14,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.notetaking.PreferenceHelper;
 import com.example.notetaking.R;
 import com.example.notetaking.Repository;
 import com.example.notetaking.database.Note;
@@ -31,6 +32,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListHolder> {
     private final LayoutInflater mLayoutInflater;
     private static Repository sRepository;
     private final ListClickListener mListener;
+    private static PreferenceHelper sHelper;
     private int position;
     private List<Note> mList = new ArrayList<>();
 
@@ -52,6 +54,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListHolder> {
         NoteDatabase database = NoteDatabase.getInstance(context);
         sRepository = Repository.getInstance(database);
         mListener = listener;
+        sHelper = PreferenceHelper.getInstance(context);
     }
 
     @NonNull
@@ -91,6 +94,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ListHolder> {
             super(itemView);
             mTitle = itemView.findViewById(R.id.item_cell_title);
             mText = itemView.findViewById(R.id.item_cell_text);
+            sHelper.setBackgroundToTheme(itemView);
             itemView.setOnClickListener(this);
             itemView.setOnCreateContextMenuListener(this);
         }

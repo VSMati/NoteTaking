@@ -13,4 +13,8 @@
     <string name="screen_reader_add_title">Добавить заголовок заметке</string>
     <string name="screen_reader_add_text">Добавить текст заметки</string>
     <string name="menu_delete">Удалить</string>
+    <string name="settings_language">Язык</string>
+    <string name="settings_theme">Цвет темы</string>
+    <string name="theme_purple">Фиолетовый</string>
+    <string name="theme_turquoise">Бирюзовый</string>
 </resources>

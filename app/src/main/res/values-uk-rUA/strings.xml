@@ -13,4 +13,8 @@
     <string name="screen_reader_add_title">Додати заголовок нотатці</string>
     <string name="screen_reader_add_text">Добавити текст нотатки</string>
     <string name="menu_delete">Видалити</string>
+    <string name="settings_language">Мова</string>
+    <string name="settings_theme">Колір теми</string>
+    <string name="theme_purple">Фіолетовий</string>
+    <string name="theme_turquoise">Бірюзовий</string>
 </resources>

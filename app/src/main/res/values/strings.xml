@@ -16,4 +16,32 @@
     <string name="screen_reader_add_title">Add title to note</string>
     <string name="screen_reader_add_text">Add text to your note</string>
     <string name="menu_delete">Delete note</string>
+
+    <string name="settings_language">Language</string>
+    <string name="settings_theme">Theme color</string>
+
+    <string name="theme_purple">Purple</string>
+    <string name="theme_turquoise">Turquoise</string>
+
+    <string-array name="entry_theme">
+        <item>@string/theme_purple</item>
+        <item>@string/theme_turquoise</item>
+    </string-array>
+
+    <string-array name="entry_value_theme">
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+    <string-array name="entry_language">
+        <item>English</item>
+        <item>Русский</item>
+        <item>Українська</item>
+    </string-array>
+
+    <string-array name="entry_value_language">
+        <item>en</item>
+        <item>ru</item>
+        <item>uk</item>
+    </string-array>
 </resources>

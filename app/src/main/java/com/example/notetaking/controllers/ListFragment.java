@@ -1,5 +1,6 @@
 package com.example.notetaking.controllers;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.notetaking.PreferenceHelper;
 import com.example.notetaking.R;
 import com.example.notetaking.Repository;
 import com.example.notetaking.database.Note;

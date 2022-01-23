@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.notetaking.R;
 import com.example.notetaking.Repository;
+import com.example.notetaking.SettingsCompat;
 import com.example.notetaking.database.Note;
 import com.example.notetaking.database.NoteDatabase;
 
@@ -25,7 +26,7 @@ import io.reactivex.rxjava3.core.Observer;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
-public class NoteActivity extends AppCompatActivity {
+public class NoteActivity extends SettingsCompat {
     private static final String TAG = NoteActivity.class.getSimpleName();
     private EditText etTitle, etText;
     private Button btnSave;
@@ -110,6 +111,8 @@ public class NoteActivity extends AppCompatActivity {
                             @Override
                             public void onNext(@io.reactivex.rxjava3.annotations.NonNull List<Note> notes) {
                                 note[0] = notes.get(position);
+                                etTitle.setText(note[0].getTitle());
+                                etText.setText(note[0].getContent());
                             }
 
                             @Override
@@ -118,10 +121,7 @@ public class NoteActivity extends AppCompatActivity {
                             }
 
                             @Override
-                            public void onComplete() {
-                                etTitle.setText(note[0].getTitle());
-                                etText.setText(note[0].getContent());
-                            }
+                            public void onComplete() { }
                         });
         }
     }
@@ -147,7 +147,7 @@ public class NoteActivity extends AppCompatActivity {
 
     }
 
-    public static Intent newIntent(Context startingAct,String uuid){
+    public static Intent newIntent(Context startingAct, String uuid){
         Intent intent = new Intent(startingAct,NoteActivity.class);
         intent.putExtra(EXTRA_UUID_STRING,uuid);
         return intent;

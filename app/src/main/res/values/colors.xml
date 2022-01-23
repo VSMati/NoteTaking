@@ -7,8 +7,9 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="app_bar">#3E194A</color>
-    <color name="statusBar">#281030</color>
-    <color name="fab">#FFA37AC6</color>
+    <color name="purple">#3E194A</color>
+    <color name="purple_dark">#281030</color>
+    <color name="purple_light">#FFA37AC6</color>
     <color name="note">#6200EE</color>
+    <color name="teal_secondary">#04F4F4</color>
 </resources>
